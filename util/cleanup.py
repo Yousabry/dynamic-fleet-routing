@@ -58,7 +58,6 @@ def build_nx_graph() -> nx.Graph:
                     
                 except Exception as e:
                     print(f"could not parse line in file {a}: {edge_info}")
-                    print(e)
 
     if len(nx_graph) != 3649:
         raise Exception(f"Size of graph is different than expected! Size is: {len(nx_graph)}")
