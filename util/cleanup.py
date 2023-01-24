@@ -6,12 +6,12 @@ import os
 import math
 import networkx as nx
 
-DATA_PATH = '../transferred_data/backup_jan19/'
+DATA_PATH = '../data/'
 WALK_DRIVE_RATIO = 4 # assume 4 min walk can be driven in 1 min
 NUM_EDGE_FILES = 50
 script_dir = os.path.dirname(__file__)
 
-
+# TODO: use lat and long of stops to adjust time if it is unreasonably small
 def parse_time_minutes(time: str) -> int:
     # Test parser works correctly 
     # print(parse_time_minutes("11 hr 57 min")) #717
@@ -34,6 +34,7 @@ def parse_time_minutes(time: str) -> int:
 
     return mins
 
+# TODO: build and save graph once to avoid repeating this process once graph is finalized
 def build_nx_graph() -> nx.Graph:
     nx_graph = nx.Graph()
 

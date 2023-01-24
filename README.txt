@@ -33,10 +33,6 @@ sudo du -am /tmp | sort -n -r | head -n 20
 To cleanup:
 sudo rm -r /tmp/snap.firefox/
 
-TODO:
-some problematic nodes, we can either remove them or try to fix them. For example:
-https://www.google.com/maps/dir/Southgate+Clearwater,+Ottawa,+ON/Trainyard Mall+Road To Belfast,+Ottawa,+ON/
-
 PROGRESS:
 Nov 25 (midnight): 110113 total
 Nov 27 (midnight): 252376 total
@@ -70,3 +66,5 @@ Jan 12 (10pm): 2979612 total
 Jan 15 (6pm): 3194935 total
 Jan 17 (12pm): 3294390 total
 Jan 19 (9pm): 3440912 total
+Jan 22 (2pm): 3647179 total
+Jan 23 (9:30pm): 3741135 total

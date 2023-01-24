@@ -8,7 +8,7 @@ NUM_SECONDS_IN_DAY = 86400
 def run_analytics(crowd_control: CrowdControl, fleet_control: FleetControl):
     num_requests = len(crowd_control.passenger_requests)
 
-    print(f"Simulation on {num_requests} with {len(fleet_control.busses)} busses in the fleet.")
+    print(f"Simulation on {num_requests} requests with {len(fleet_control.busses)} busses in the fleet.")
 
     total_time_waiting = sum([r.pickup_time - r.request_time for r in crowd_control.passenger_requests])
     print(f"Average wait time: {total_time_waiting/num_requests}")
@@ -37,8 +37,19 @@ def simulate_full_day(heuristic: HeuristicEnums):
             # Let heuristic manage fleet and requests
             Heuristics.heuristic_funcs[heuristic](fleet_control, distance_control)
 
+    # run out clock to let last passengers arrive
+    current_time = NUM_SECONDS_IN_DAY + 1
+    busses_still_working = [bus for bus in fleet_control.busses if bus.passenger_requests]
+    while busses_still_working:
+        for bus in busses_still_working:
+            bus.on_time_tic(current_time, distance_control)
+        
+        current_time += 1
+        busses_still_working = [bus for bus in busses_still_working if bus.passenger_requests]
+
     run_analytics(crowd_control, fleet_control)
 
+# TODO: taking forever to run... find out why
 if __name__ == "__main__":
     simulate_full_day(HeuristicEnums.CLOSEST_PICKUP)
     

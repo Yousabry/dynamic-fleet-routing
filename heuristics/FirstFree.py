@@ -8,7 +8,7 @@ def heuristic_first_free(fleet_control: FleetControl, distance_control: Distance
     # for each new request, we assign immediately
     for req in fleet_control.request_pool:
         # find the bus that will be able to reach the stop the earliest
-        closest_bus = (fleet_control.busses[0], 999999999)
+        closest_bus = (fleet_control.busses[0], 9999999)
         
         for bus in fleet_control.busses:
             bus_can_arrive_by = bus.time_to_next_stop
@@ -23,4 +23,7 @@ def heuristic_first_free(fleet_control: FleetControl, distance_control: Distance
                 closest_bus = (bus, bus_can_arrive_by)
         
         # assign this bus the new request
+        bus = closest_bus[0]
         bus.upcoming_stops = [bus.upcoming_stops] + [req.start_location, req.destination]
+
+    fleet_control.request_pool.clear()

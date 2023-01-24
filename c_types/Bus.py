@@ -28,12 +28,15 @@ class Bus:
                 raise Exception("upcoming stops should not be empty if time to next stop is non-zero.")
 
             self.current_location = self.upcoming_stops.pop(0)
+            print(f"bus {self.id} arrived at stop {self.current_location}")
 
             for req in self.passenger_requests:
                 if req.start_location == self.current_location and not req.pickup_time:
                     req.pickup_time = current_time
+                    print(f"request {req.id} picked up by bus {self.id}")
                 elif req.destination == self.current_location and req.pickup_time:
                     req.arrival_time = current_time
+                    print(f"request {req.id} dropped off by bus {self.id}")
 
             self.passenger_requests = [r for r in self.passenger_requests if r.arrival_time and r.arrival_time < current_time]
 

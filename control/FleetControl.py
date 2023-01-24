@@ -8,7 +8,7 @@ random.seed(666)
 NUM_SECONDS_IN_DAY = 86400
 
 class FleetControl:
-    FLEET_SIZE = 200 # 900
+    FLEET_SIZE = 20 # 900
     BATCH_PERIOD_SEC = 30
 
     def __init__(self, all_stops: List[Stop]) -> None:
