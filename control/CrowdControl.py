@@ -3,20 +3,16 @@ from typing import List
 from c_types.Request import PassengerRequest
 
 from c_types.Stop import Stop
-
-random.seed(666)
-NUM_SECONDS_IN_DAY = 86400
+from control.config import NUM_REQUESTS, NUM_SECONDS_IN_DAY
 
 class CrowdControl:
-    NUM_REQUESTS = 100 # 300_000
-
     def __init__(self, all_stops: List[Stop]) -> None:
         self.passenger_requests: List[PassengerRequest] = []
         self.prev_batch_end_index: int = -1
         self.prepare_requests(all_stops)
 
     def prepare_requests(self, all_stops: List[Stop]) -> None:
-        for i in range(CrowdControl.NUM_REQUESTS):
+        for i in range(NUM_REQUESTS):
             # TODO: add weight for high volume stops and high volume times
             [start_location, destination] = random.sample(all_stops, 2)
             request_time = random.randint(0, NUM_SECONDS_IN_DAY)

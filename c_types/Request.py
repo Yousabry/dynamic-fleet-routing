@@ -1,4 +1,5 @@
 from c_types.Stop import Stop
+from control.config import ACCEPTABLE_WAIT_FOR_PICKUP_SEC
 
 class PassengerRequest:
     def __init__(self, id: int, start_location: Stop, destination: Stop, request_time: int) -> None:
@@ -8,4 +9,4 @@ class PassengerRequest:
         self.request_time: int = request_time
         self.pickup_time: int = None
         self.arrival_time: int = None
-        self.latest_acceptable_pickup: int = request_time + 600 # 10 minutes
+        self.latest_acceptable_pickup: int = request_time + ACCEPTABLE_WAIT_FOR_PICKUP_SEC

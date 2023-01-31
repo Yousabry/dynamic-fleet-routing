@@ -1,28 +1,32 @@
 from typing import List
-import networkx as nx
+import os
 from c_types.Stop import Stop
+from geopy import distance as geodistance
+from control.config import KM_TO_MINUTES_MULTIPLE
 
-from util.cleanup import build_nx_graph
-
+DATA_PATH = '../data/'
+script_dir = os.path.dirname(__file__)
 
 class DistanceControl:
-    GRAPH_WEIGHT_LABEL = "distance"
-
     def __init__(self) -> None:
-        self.nx_graph: nx.Graph = build_nx_graph()
         self.all_stops: List[Stop] = []
+        self.read_stops_from_file()
 
-        for node_id, node_dict in self.nx_graph.nodes.items():
-            self.all_stops.append(Stop(node_id, f"main st stop {node_dict['main_street']}", f"cross st stop {node_dict['cross_street']}"))
-    
-    def get_all_stops(self) -> List[Stop]:
-        return self.all_stops
+    def get_travel_distance_km(self, origin: Stop, dest: Stop) -> int:
+        return geodistance.distance(origin.coordinates, dest.coordinates).km
 
-    def get_distance(self, origin: Stop, dest: Stop) -> int:
-        return nx.shortest_path_length(self.nx_graph, origin.id, dest.id, weight=DistanceControl.GRAPH_WEIGHT_LABEL)
+    def get_travel_distance_coord(self, origin: tuple[float, float], dest: tuple[float, float]) -> int:
+        return geodistance.distance(origin, dest).km
 
-    def find_shortest_path(self, origin: Stop, dest: Stop) -> List[any]:
-        return nx.shortest_path(self.nx_graph, origin.id, dest.id, weight=DistanceControl.GRAPH_WEIGHT_LABEL)
+    def get_travel_time_seconds(self, origin: Stop, dest: Stop) -> int:
+        return self.get_travel_distance_km(origin, dest) * KM_TO_MINUTES_MULTIPLE * 60
 
-    def get_length_of_path(self, path: List[str]) -> int:
-        return nx.path_weight(self.nx_graph, path, weight=DistanceControl.GRAPH_WEIGHT_LABEL)
+    def read_stops_from_file(self) -> None:
+        stops_abs_file_path = os.path.join(script_dir, f"{DATA_PATH}/stops.txt")
+
+        with open(stops_abs_file_path, "r") as stops_file:
+            stops_file.readline()
+
+            for stop in stops_file:
+                [stop_id,stop_code,stop_name,stop_lat,stop_lon] = stop.strip().split(",")
+                self.all_stops.append(Stop(stop_id,stop_code,stop_name,(float(stop_lat),float(stop_lon))))
