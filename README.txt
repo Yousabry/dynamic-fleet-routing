@@ -68,3 +68,9 @@ Jan 17 (12pm): 3294390 total
 Jan 19 (9pm): 3440912 total
 Jan 22 (2pm): 3647179 total
 Jan 23 (9:30pm): 3741135 total
+
+EDGES PROGRESS:
+Jan 29 (6pm) : 280118
+Jan 30 (5pm) : 346024
+~65906 per day
+stopped, going to use geodistance calculation instead

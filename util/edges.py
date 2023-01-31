@@ -1,7 +1,7 @@
 # This util takes the edge weights from the scraped txt files, and uses the coordinates to
 # create one consolidated list of edges.
 
-
+import sys
 import os
 from geopy import distance as geodistance
 import networkx as nx
@@ -11,6 +11,10 @@ import requests
 DATA_PATH = '../data/'
 WALK_DRIVE_RATIO = 4 # assume 4 min walk can be driven in 1 min
 KM_TO_TIME_MULTIPLE = 1.4 # if geo distance is 10km, travel distance is >= 10 * 1.4 = 14 min
+
+script_dir = os.path.dirname(__file__)
+stops_abs_file_path = os.path.join(script_dir, f"{DATA_PATH}/stops.txt")
+edges_output_abs_file_path = os.path.join(script_dir, f"{DATA_PATH}/edges.txt")
 
 def parse_time_minutes(time: str) -> int:
     mins = 0
@@ -37,14 +41,18 @@ def send_notif(message, description, type):
         "type": type, # info, error, warning or success
     })
 
-def consolidate_edges():
-    script_dir = os.path.dirname(__file__)
-    stops_abs_file_path = os.path.join(script_dir, f"{DATA_PATH}/stops.txt")
+def get_already_done_edges():
+    already_done = {}
+    with open(edges_output_abs_file_path, "r") as edges_file:
+        for edge in edges_file:
+            [stop1,stop2,distance,path] = edge.strip().split(",")
+            already_done[stop1+stop2] = True
 
+    return already_done
+
+def consolidate_edges():
     nx_graph = nx.Graph()
     stops = {}
-    skipped = 0
-    scraper_heavy = 0
 
     with open(stops_abs_file_path, "r") as stops_file:
         stops_file.readline()
@@ -66,13 +74,10 @@ def consolidate_edges():
                     [stop1, stop2, time] = edge_info.strip().split(",")
 
                     if stop1 not in stops or stop2 not in stops:
-                        skipped += 1
                         continue
 
                     dist_from_scraper = parse_time_minutes(time)
                     dist_from_geo = floor(geodistance.distance(stops[stop1], stops[stop2]).km * KM_TO_TIME_MULTIPLE)
-
-                    scraper_heavy += 1 if dist_from_scraper > dist_from_geo else -1
 
                     dist_final = max(dist_from_scraper, dist_from_geo)
 
@@ -82,39 +87,49 @@ def consolidate_edges():
                     print(f"could not parse line in file {a}: {edge_info}")
                     print(e)
     
-    print(f"we skipped: {skipped} edges from scraper")
-
     # calculate all edge lengths and paths, write to txt
-    all_stops = stops.keys()
+    already_calculated_edges = get_already_done_edges()
+    all_stops = list(stops.keys())
     num_stops = len(all_stops)
 
-    edges_output_abs_file_path = os.path.join(script_dir, f"{DATA_PATH}/edges.txt")
+    s, e = int(sys.argv[1]), int(sys.argv[2]) + 1
+    
+    for i in range(s, max(e, num_stops - 1)):
+        edges_to_write_to_file = ""
+        
+        if i != 0 and i % 500 == 0:
+            send_notif("Making progress on edges", f"Currently on i={i} out of {num_stops}", "success")
 
-    with open(edges_output_abs_file_path, "a") as output_stops_file:
-        for i in range(num_stops - 1):
-            if i != 0 and i % 500 == 0:
-                send_notif("Making progress on edges", f"Currently on i={i} out of {num_stops}", "success")
+        for j in range(i + 1, num_stops):
+            s1, s2 = all_stops[i], all_stops[j]
 
-            for j in range(i + 1, num_stops):
-                s1, s2 = all_stops[i], all_stops[j]
+            if (s1 + s2) in already_calculated_edges:
+                continue
 
+            distance_in_min, shortest_path = -1, []
+            try:
                 distance_in_min = nx.shortest_path_length(nx_graph, s1, s2, weight="weight")
                 shortest_path = nx.shortest_path(nx_graph, s1, s2, weight="weight")
-                shortest_path_as_string = "-".join(shortest_path)
-                edge_info = [s1, s2, str(distance_in_min), shortest_path_as_string]
+            except:
+                distance_in_min = floor(geodistance.distance(stops[s1], stops[s2]).km * KM_TO_TIME_MULTIPLE)
+                shortest_path = [s1, s2]
+            
+            shortest_path_as_string = "-".join(shortest_path)
+            edge_info = [s1, s2, str(distance_in_min), shortest_path_as_string]
 
-                s_to_write = ",".join(edge_info) + "\n"
-                output_stops_file.write(s_to_write)
+            edges_to_write_to_file += ",".join(edge_info) + "\n"
+            
+        with open(edges_output_abs_file_path, "a") as output_stops_file:
+            output_stops_file.write(edges_to_write_to_file)
 
-                if j > 10:
-                    break
-
-            break
-
-    send_notif("All edges consolidated", "Finished writing all edges to edge file.", "success")
+    send_notif("All edges consolidated", f"Finished writing all edges between {s}-{e} to edge file.", "success")
 
 if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        raise Exception("You need to provide 2 arguments, start and end int for i in the loop. For example, to get all edges starting from nodes 5-10:\n\t./edges.py 5 10")
+
     try:
         consolidate_edges()
     except Exception as e:
         send_notif("Edge consolidation crashed",f"Here is the error {e}.", "error")
+        raise e
