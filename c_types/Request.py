@@ -10,3 +10,6 @@ class PassengerRequest:
         self.pickup_time: int = None
         self.arrival_time: int = None
         self.latest_acceptable_pickup: int = request_time + ACCEPTABLE_WAIT_FOR_PICKUP_SEC
+
+    def __str__(self) -> str:
+        return f"{self.id}: {self.start_location} -> {self.destination} (requested {self.request_time})"

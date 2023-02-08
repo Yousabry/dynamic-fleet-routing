@@ -27,8 +27,8 @@ class CrowdControl:
         for i in range(self.prev_batch_end_index + 1, len(self.passenger_requests)):
             if self.passenger_requests[i].request_time <= time:
                 new_requests.append(self.passenger_requests[i])
+                self.prev_batch_end_index = i
             else:
-                self.prev_batch_end_index = i - 1
                 break
         
         return new_requests

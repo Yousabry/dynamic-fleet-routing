@@ -12,8 +12,15 @@ def run_analytics(crowd_control: CrowdControl, fleet_control: FleetControl):
 
     print(f"Simulation on {num_requests} requests with {len(fleet_control.busses)} busses in the fleet.")
 
-    total_time_waiting = sum([r.pickup_time - r.request_time for r in crowd_control.passenger_requests])
+    fulfilled_requests = [r for r in crowd_control.passenger_requests if r.pickup_time]
+    total_time_waiting = sum([r.pickup_time - r.request_time for r in fulfilled_requests])
+    print(f"{len(fulfilled_requests)} fulfilled requests")
     print(f"Average wait time: {total_time_waiting/num_requests}")
+
+    unfulfilled_requests = [r for r in crowd_control.passenger_requests if not r.pickup_time]
+    print("unfulfilled_requests:")
+    for r in unfulfilled_requests:
+        print(r)
 
     # for req in new_requests:
     #     print(f" time {req.request_time} from {req.start_location.id} to --> {req.destination.id} (takes {distance_control.get_distance(req.start_location,req.destination)} min straight)")
@@ -45,9 +52,9 @@ def simulate_full_day(heuristic: HeuristicEnums):
     busses_still_working = [bus for bus in fleet_control.busses if bus.passenger_requests]
     while busses_still_working:
         for bus in busses_still_working:
-            bus.on_time_tic()
+            bus.on_time_tic(current_time)
         
-        current_time += 1
+        current_time += BATCH_PERIOD_SEC
         busses_still_working = [bus for bus in busses_still_working if bus.passenger_requests]
 
     run_analytics(crowd_control, fleet_control)

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Set
 from c_types.Request import PassengerRequest
 from c_types.Stop import Stop
 from geopy import distance as geodistance
@@ -10,7 +10,7 @@ geod = Geodesic.WGS84
 class Bus:
     def __init__(self, id: int):
         self.id = id
-        self.passenger_requests: List[PassengerRequest] = []
+        self.passenger_requests: Set[PassengerRequest] = set()
         self.upcoming_stops: List[Stop] = []
         self.current_location: tuple[float, float] = None
 
@@ -55,15 +55,14 @@ class Bus:
         print(f"bus {self.id} arrived at stop {current_stop}")
 
         for req in self.passenger_requests:
-            if req.start_location == self.current_location and not req.pickup_time:
+            if req.start_location == current_stop and not req.pickup_time:
                 req.pickup_time = current_time
                 print(f"request {req.id} picked up by bus {self.id}")
-            elif req.destination == self.current_location and req.pickup_time:
+            elif req.destination == current_stop and req.pickup_time:
                 req.arrival_time = current_time
                 print(f"request {req.id} dropped off by bus {self.id}")
 
-        self.passenger_requests = [r for r in self.passenger_requests if r.arrival_time and r.arrival_time < current_time]
-
+        self.passenger_requests = {r for r in self.passenger_requests if not r.arrival_time}
         self.current_location = current_stop.coordinates
         self.upcoming_stops.pop(0)
 
@@ -72,6 +71,28 @@ class Bus:
             return
 
         self.update_current_position(current_time)
+
+    def add_stop_at_index(self, idx: int, stop: Stop, req: PassengerRequest):
+        predecessor_idx, successor_idx = idx - 1, idx
+        
+        # we never want the same stop listed twice consecutively
+        if predecessor_idx >= 0 and self.upcoming_stops[predecessor_idx] == stop:
+            return
+        
+        if successor_idx < len(self.upcoming_stops) and self.upcoming_stops[successor_idx] == stop:
+            return
+
+        self.upcoming_stops.insert(idx, stop)
+        self.passenger_requests.add(req)
+
+    def append_stop_to_upcoming(self, stop: Stop, req: PassengerRequest):
+        predecessor_idx = len(self.upcoming_stops) - 1
+
+        if predecessor_idx >= 0 and self.upcoming_stops[predecessor_idx] == stop:
+            return
+        
+        self.upcoming_stops.append(stop)
+        self.passenger_requests.add(req)
 
     # def do_stops_satisfy_requests(stops_planned: List[Stop]) -> bool:
     # for each req make sure first instance of start_location appears before last instance of destination
