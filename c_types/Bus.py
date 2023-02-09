@@ -73,6 +73,10 @@ class Bus:
         self.update_current_position(current_time)
 
     def add_stop_at_index(self, idx: int, stop: Stop, req: PassengerRequest):
+        if idx >= len(self.upcoming_stops):
+            self.append_stop_to_upcoming(stop, req)
+            return
+        
         predecessor_idx, successor_idx = idx - 1, idx
         
         # we never want the same stop listed twice consecutively
@@ -93,6 +97,21 @@ class Bus:
         
         self.upcoming_stops.append(stop)
         self.passenger_requests.add(req)
+
+    def append_if_not_already_in_upcoming(self, stop: Stop, req: PassengerRequest):
+        if stop in self.upcoming_stops:
+            return
+        
+        self.append_stop_to_upcoming(stop, req)
+    
+    # Append stop if it does not already exist after the required predecessor
+    def append_after_stop(self, stop: Stop, req: PassengerRequest, needed_pred: Stop):
+        pred_idx = self.upcoming_stops.index(needed_pred)
+
+        if stop in self.upcoming_stops[pred_idx:]:
+            return
+        
+        self.append_stop_to_upcoming(stop, req)
 
     # def do_stops_satisfy_requests(stops_planned: List[Stop]) -> bool:
     # for each req make sure first instance of start_location appears before last instance of destination

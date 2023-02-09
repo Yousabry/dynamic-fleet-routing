@@ -10,17 +10,18 @@ random.seed(666)
 def run_analytics(crowd_control: CrowdControl, fleet_control: FleetControl):
     num_requests = len(crowd_control.passenger_requests)
 
+    print("-"*30)
     print(f"Simulation on {num_requests} requests with {len(fleet_control.busses)} busses in the fleet.")
 
     fulfilled_requests = [r for r in crowd_control.passenger_requests if r.pickup_time]
     total_time_waiting = sum([r.pickup_time - r.request_time for r in fulfilled_requests])
-    print(f"{len(fulfilled_requests)} fulfilled requests")
-    print(f"Average wait time: {total_time_waiting/num_requests}")
+    print(f"{len(fulfilled_requests)}/{num_requests} fulfilled requests")
+    print(f"Average wait time: {total_time_waiting/len(fulfilled_requests)} sec")
 
-    unfulfilled_requests = [r for r in crowd_control.passenger_requests if not r.pickup_time]
-    print("unfulfilled_requests:")
-    for r in unfulfilled_requests:
-        print(r)
+    # unfulfilled_requests = [r for r in crowd_control.passenger_requests if not r.pickup_time]
+    # print(f"unfulfilled_requests: {len(unfulfilled_requests)}")
+    # print("-"*30)
+
 
     # for req in new_requests:
     #     print(f" time {req.request_time} from {req.start_location.id} to --> {req.destination.id} (takes {distance_control.get_distance(req.start_location,req.destination)} min straight)")
@@ -61,5 +62,5 @@ def simulate_full_day(heuristic: HeuristicEnums):
 
 
 if __name__ == "__main__":
-    simulate_full_day(HeuristicEnums.CLOSEST_PICKUP)
+    simulate_full_day(HeuristicEnums.FIRST_FREE)
     

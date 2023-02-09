@@ -13,11 +13,7 @@ def heuristic_closest_pickup(fleet_control: FleetControl, distance_control: Dist
 
         print(f"bus {closest_bus.id} assigned trip request {req.id}")
 
-        if closest_bus.upcoming_stops:
-            closest_bus.add_stop_at_index(1, req.start_location, req)
-            closest_bus.append_stop_to_upcoming(req.destination, req)
-        else:
-            closest_bus.append_stop_to_upcoming(req.start_location, req)
-            closest_bus.append_stop_to_upcoming(req.destination, req)
+        closest_bus.add_stop_at_index(1, req.start_location, req)        
+        closest_bus.append_after_stop(req.destination, req, req.start_location)
 
     fleet_control.request_pool.clear()

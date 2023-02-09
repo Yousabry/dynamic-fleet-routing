@@ -20,6 +20,9 @@ class DistanceControl:
 
     def get_travel_time_seconds(self, origin: Stop, dest: Stop) -> int:
         return self.get_travel_distance_km(origin, dest) * KM_TO_MINUTES_MULTIPLE * 60
+    
+    def get_travel_time_seconds_coord(self, origin: tuple[float, float], dest: tuple[float, float]) -> int:
+        return self.get_travel_distance_coord(origin, dest) * KM_TO_MINUTES_MULTIPLE * 60
 
     def read_stops_from_file(self) -> None:
         stops_abs_file_path = os.path.join(script_dir, f"{DATA_PATH}/stops.txt")
