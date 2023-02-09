@@ -1,7 +1,8 @@
-from typing import Callable
+from typing import Callable, List
 from c_types.Bus import Bus
 from control.DistanceControl import DistanceControl
 from control.FleetControl import FleetControl
+from util.compliance import do_stops_satisfy_requests
 from util.debug import debug_log
 
 # This heuristic finds the closest bus to the start location of the request and assigns
@@ -10,11 +11,25 @@ def heuristic_closest_pickup(fleet_control: FleetControl, distance_control: Dist
     # for each new request, we assign immediately
     for req in fleet_control.request_pool:
         distance_calc: Callable[[Bus], Bus] = lambda bus: distance_control.get_travel_distance_coord(bus.current_location, req.start_location.coordinates)
-        closest_bus: Bus = min(fleet_control.busses, key=distance_calc)
+        closest_busses: List[Bus] = fleet_control.busses.copy()
+        closest_busses.sort(key=distance_calc)
 
-        debug_log(f"bus {closest_bus.id} assigned trip request {req.id}")
+        for bus in closest_busses:
+            potential_stops = bus.upcoming_stops.copy()
+            potential_stops.insert(1, req.start_location)
+            potential_stops.append(req.destination)
+            potential_reqs = [r for r in bus.passenger_requests.copy()]
+            potential_reqs.append(req)
 
-        closest_bus.add_stop_at_index(1, req.start_location, req)        
-        closest_bus.append_after_stop(req.destination, req, req.start_location)
+            if do_stops_satisfy_requests(bus, potential_stops, potential_reqs, distance_control):
+                debug_log(f"bus {bus.id} assigned trip request {req.id}")
+
+                bus.add_stop_at_index(1, req.start_location, req)        
+                bus.append_after_stop(req.destination, req, req.start_location)
+
+                break
+
+            else:
+                debug_log(f"bus {bus.id} is close but could not be assigned trip request {req.id}")
 
     fleet_control.request_pool.clear()

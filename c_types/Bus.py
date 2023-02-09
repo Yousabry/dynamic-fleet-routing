@@ -113,15 +113,3 @@ class Bus:
             return
         
         self.append_stop_to_upcoming(stop, req)
-
-    # def do_stops_satisfy_requests(stops_planned: List[Stop]) -> bool:
-    # for each req make sure first instance of start_location appears before last instance of destination
-    #     return False
-
-    # # TODO: careful, this includes destination stops for reqs that might not have been picked up yet...
-    # def get_requests_that_need_stop(self, stop: Stop) -> List[PassengerRequest]:
-    #     return [req for req in self.passenger_requests if stop in [req.start_location, req.destination]]
-
-    # def get_passenger_count_change_at_stop(self, stop: Stop) -> int:
-    #     reqs = self.get_requests_that_need_stop(stop)
-    #     return sum([1 if req.start_location == stop else -1 for req in reqs])

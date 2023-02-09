@@ -10,6 +10,7 @@ class PassengerRequest:
         self.pickup_time: int = None
         self.arrival_time: int = None
         self.latest_acceptable_pickup: int = request_time + ACCEPTABLE_WAIT_FOR_PICKUP_SEC
+        self.latest_acceptable_arrival: int = 99999999999 # TODO: use tranvel time + buffer
 
     def __str__(self) -> str:
         return f"{self.id}: {self.start_location} -> {self.destination} (requested {self.request_time})"

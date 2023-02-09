@@ -1,5 +1,6 @@
 # Should it output debug information in console
 DEBUG_OUTPUT = False
+DEBUG_MUST_INCLUDE = ""
 
 # Time between syncs for busses and fleet management control call
 BATCH_PERIOD_SEC = 30
