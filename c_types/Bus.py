@@ -5,6 +5,7 @@ from geopy import distance as geodistance
 from geographiclib.geodesic import Geodesic
 
 from control.config import AVG_AERAL_PACE_KM_SEC, AVG_AERAL_PACE_M_SEC, BATCH_PERIOD_SEC
+from util.debug import debug_log
 geod = Geodesic.WGS84
 
 class Bus:
@@ -52,15 +53,15 @@ class Bus:
         if len(self.upcoming_stops) == 0:
             raise Exception("upcoming stops should not be empty when handle_stop_arrival is called")
         current_stop = self.upcoming_stops[0]
-        print(f"bus {self.id} arrived at stop {current_stop}")
+        debug_log(f"bus {self.id} arrived at stop {current_stop}")
 
         for req in self.passenger_requests:
             if req.start_location == current_stop and not req.pickup_time:
                 req.pickup_time = current_time
-                print(f"request {req.id} picked up by bus {self.id}")
+                debug_log(f"request {req.id} picked up by bus {self.id}")
             elif req.destination == current_stop and req.pickup_time:
                 req.arrival_time = current_time
-                print(f"request {req.id} dropped off by bus {self.id}")
+                debug_log(f"request {req.id} dropped off by bus {self.id}")
 
         self.passenger_requests = {r for r in self.passenger_requests if not r.arrival_time}
         self.current_location = current_stop.coordinates
