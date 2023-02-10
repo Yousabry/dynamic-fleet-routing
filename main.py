@@ -15,9 +15,13 @@ def run_analytics(crowd_control: CrowdControl, fleet_control: FleetControl):
 
     fulfilled_requests = [r for r in crowd_control.passenger_requests if r.pickup_time]
     total_time_waiting = sum([r.pickup_time - r.request_time for r in fulfilled_requests])
+    total_travel_time = sum([r.arrival_time - r.pickup_time for r in fulfilled_requests])
     print(f"{len(fulfilled_requests)}/{num_requests} fulfilled requests")
     avg_wait = -1 if not fulfilled_requests else total_time_waiting/len(fulfilled_requests)
+    avg_travel = -1 if not fulfilled_requests else total_travel_time/len(fulfilled_requests)
     print(f"Average wait time: {avg_wait} sec")
+    print(f"Average travel time: {avg_travel} sec")
+    print("-"*30)
 
 def simulate_full_day(heuristic: HeuristicEnums):
     print(f"Running simulation with {heuristic} heuristic.")

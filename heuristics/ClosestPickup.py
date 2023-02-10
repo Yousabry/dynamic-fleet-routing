@@ -4,6 +4,7 @@ from control.DistanceControl import DistanceControl
 from control.FleetControl import FleetControl
 from util.compliance import do_stops_satisfy_requests
 from util.debug import debug_log
+import copy
 
 # This heuristic finds the closest bus to the start location of the request and assigns
 # that bus the request if it has space
@@ -15,13 +16,13 @@ def heuristic_closest_pickup(fleet_control: FleetControl, distance_control: Dist
         closest_busses.sort(key=distance_calc)
 
         for bus in closest_busses:
-            potential_stops = bus.upcoming_stops.copy()
-            potential_stops.insert(1, req.start_location)
-            potential_stops.append(req.destination)
-            potential_reqs = [r for r in bus.passenger_requests.copy()]
-            potential_reqs.append(req)
+            potential_path = copy.copy(bus.path)
+            potential_path.add_stop_at_index(1, req.start_location)
+            potential_path.append_stop(req.destination)
+            potential_reqs = bus.passenger_requests.copy()
+            potential_reqs.add(req)
 
-            if do_stops_satisfy_requests(bus, potential_stops, potential_reqs, distance_control):
+            if do_stops_satisfy_requests(bus, potential_path, potential_reqs, distance_control):
                 debug_log(f"bus {bus.id} assigned trip request {req.id}")
 
                 bus.add_stop_at_index(1, req.start_location, req)        
