@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import List
 from c_types.Stop import Stop
 from control.DistanceControl import DistanceControl
@@ -17,6 +18,18 @@ class Path:
     
     def __contains__(self, key: Stop) -> bool:
         return key in  self.stops
+
+    def __iadd__(self, other: Path) -> Path:
+        for s in other.stops:
+            self.append_stop(s)
+
+        return self
+    
+    def __add__(self, other: Path) -> Path:
+        new_path = Path()
+        new_path += self
+        new_path += other
+        return new_path
     
     def index(self, stop: Stop) -> int:
         return self.stops.index(stop)
@@ -72,6 +85,25 @@ class Path:
             return
 
         self.stops.insert(idx, stop)
+
+    def add_stop_to_minimize_detour(self, stop: Stop, dc: DistanceControl):
+        if len(self.stops) < 2:
+            self.stops.append(stop)
+            return
+        
+        best_idx = (1, 99999999)
+        
+        for i in range(1, len(self.stops)):
+            to_stop = dc.get_travel_time_seconds(self.stops[i-1], stop)
+            from_stop = dc.get_travel_time_seconds(stop, self.stops[i])
+            old_edge = dc.get_travel_time_seconds(self.stops[i-1], self.stops[i])
+            distance_added = to_stop + from_stop - old_edge
+
+            if distance_added < best_idx[1]:
+                best_idx = (i, distance_added)
+
+        self.add_stop_at_index(best_idx[0], stop)
+
 
     # build time to arrival array for all upcoming stops planned
     def get_arrival_times(self, bus_location: tuple[float, float], dc: DistanceControl) -> List[int]:

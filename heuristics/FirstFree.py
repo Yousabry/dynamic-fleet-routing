@@ -13,7 +13,7 @@ import copy
 def heuristic_first_free(fleet_control: FleetControl, distance_control: DistanceControl):
     # for each new request, we assign immediately
     for req in fleet_control.request_pool:
-        distance_calc: Callable[[Bus], Bus] = lambda bus: time_to_arrive_for_pickup(bus, req.start_location, distance_control)
+        distance_calc: Callable[[Bus], Bus] = lambda bus: fleet_control.time_to_arrive_for_pickup(bus, req.start_location, distance_control)
         closest_busses: List[Bus] = fleet_control.busses.copy()
         closest_busses.sort(key=distance_calc)
 
@@ -37,14 +37,3 @@ def heuristic_first_free(fleet_control: FleetControl, distance_control: Distance
                 debug_log(f"bus {bus.id} is first free but could not be assigned trip request {req.id}")
 
     fleet_control.request_pool.clear()
-
-def time_to_arrive_for_pickup(bus: Bus, destination: Stop, distance_control: DistanceControl) -> int:
-    if not bus.path:
-        return distance_control.get_travel_time_seconds_coord(bus.current_location, destination.coordinates)
-
-    arrival_times = bus.path.get_arrival_times(bus.current_location, distance_control)
-
-    if destination in bus.path:
-        return arrival_times[bus.path.index(destination)]
-    
-    return distance_control.get_travel_time_seconds(bus.path[-1], destination) + arrival_times[-1]

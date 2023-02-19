@@ -4,6 +4,7 @@ from control.DistanceControl import DistanceControl
 from control.FleetControl import FleetControl
 from control.config import BATCH_PERIOD_SEC, NUM_SECONDS_IN_DAY
 from heuristics.Heuristics import HeuristicEnums, Heuristics
+from util.debug import debug_log
 
 random.seed(666)
 
@@ -33,6 +34,7 @@ def simulate_full_day(heuristic: HeuristicEnums):
     # begin simulation
     current_time = 0
     while current_time <= NUM_SECONDS_IN_DAY:
+        debug_log(f"Current simulation time: {current_time}")
         current_time += BATCH_PERIOD_SEC
 
         for bus in fleet_control.busses:

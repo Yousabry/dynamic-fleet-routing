@@ -1,10 +1,9 @@
 
 
-from typing import List, Set
+from typing import Set
 from c_types.Bus import Bus
 from c_types.Path import Path
 from c_types.Request import PassengerRequest
-from c_types.Stop import Stop
 from control.DistanceControl import DistanceControl
 from control.config import BUS_CAPACITY
 from util.debug import debug_log
@@ -13,6 +12,7 @@ from util.debug import debug_log
 #   - latest_pickup and latest_dropoff are respected for all requests on this bus
 #   - the bus is never over capacity
 
+# THIS DOES NOT LOOK AT BUS CURRENT PATH, IT ASSUMES IT IS EMPTY AND PLANNED_PATH IS THE PATH THE BUS TAKES NOW
 def do_stops_satisfy_requests(bus: Bus, planned_path: Path, requests: Set[PassengerRequest], dc: DistanceControl) -> bool:
     if not planned_path or not requests:
         raise Exception("What am I supposed to do here...")
