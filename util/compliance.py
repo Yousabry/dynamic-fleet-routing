@@ -12,13 +12,12 @@ from util.debug import debug_log
 #   - latest_pickup and latest_dropoff are respected for all requests on this bus
 #   - the bus is never over capacity
 
-# THIS DOES NOT LOOK AT BUS CURRENT PATH, IT ASSUMES IT IS EMPTY AND PLANNED_PATH IS THE PATH THE BUS TAKES NOW
-def do_stops_satisfy_requests(bus: Bus, planned_path: Path, requests: Set[PassengerRequest], dc: DistanceControl) -> bool:
+def do_stops_satisfy_requests(bus_current_location: tuple[float, float], bus_current_passenger_count: int, planned_path: Path, requests: Set[PassengerRequest], dc: DistanceControl) -> bool:
     if not planned_path or not requests:
         raise Exception("What am I supposed to do here...")
     
-    arrival_times = planned_path.get_arrival_times(bus.current_location, dc)
-    capacities = [bus.get_current_passenger_count()] * len(arrival_times)
+    arrival_times = planned_path.get_arrival_times(bus_current_location, dc)
+    capacity_change = [0] * len(arrival_times)
     # check that all requests are satisfied in time
     try:
         for req in requests:
@@ -29,7 +28,7 @@ def do_stops_satisfy_requests(bus: Bus, planned_path: Path, requests: Set[Passen
                 if planned_pickup_time > req.latest_acceptable_pickup:
                     return False
 
-                capacities[pickup_stop_idx] += 1
+                capacity_change[pickup_stop_idx] += 1
             
             if not req.arrival_time:
                 # validate arrival time
@@ -39,16 +38,19 @@ def do_stops_satisfy_requests(bus: Bus, planned_path: Path, requests: Set[Passen
                 if planned_arrival_time > req.latest_acceptable_arrival:
                     return False
                 
-                capacities[dest_stop_idx] -= 1
+                capacity_change[dest_stop_idx] -= 1
 
     except Exception as e:
         print(e)
-        # debug_log(e)
         return False
+
+    capacities = [bus_current_passenger_count + capacity_change[0]]
+    for i in range(len(capacity_change)):
+        capacities.append(capacities[i-1] + capacity_change[i])
 
     # validate that capacity is never exceeded
     if max(capacities) > BUS_CAPACITY:
-        debug_log(f"Cannot do this plan because bus {bus.id} would be over capacity.")
+        debug_log(f"Cannot do this plan because bus would be over capacity.")
         return False
 
     return True

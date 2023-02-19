@@ -25,7 +25,7 @@ def heuristic_first_free(fleet_control: FleetControl, distance_control: Distance
             potential_reqs = bus.passenger_requests.copy()
             potential_reqs.add(req)
 
-            if do_stops_satisfy_requests(bus, potential_path, potential_reqs, distance_control):
+            if do_stops_satisfy_requests(bus.current_location,bus.current_passenger_count, potential_path, potential_reqs, distance_control):
                 debug_log(f"bus {bus.id} assigned trip request {req.id}")
 
                 bus.append_if_not_already_in_upcoming(req.start_location, req)

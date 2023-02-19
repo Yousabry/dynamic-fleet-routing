@@ -23,7 +23,7 @@ def heuristic_group_close(fleet_control: FleetControl, dc: DistanceControl):
         path.append_stop(first_req.destination)
 
         # if this does not work, then we cannot service this req
-        if not do_stops_satisfy_requests(bus, bus.path + path, requests_for_path, dc):
+        if not do_stops_satisfy_requests(bus.current_location, bus.current_passenger_count, bus.path + path, requests_for_path, dc):
             continue
 
         # sort requests in pool by distance from first_req
