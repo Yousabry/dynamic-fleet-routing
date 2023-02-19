@@ -2,12 +2,10 @@ from typing import Set
 from c_types.Path import Path
 from c_types.Request import PassengerRequest
 from c_types.Stop import Stop
-from geopy import distance as geodistance
-from geographiclib.geodesic import Geodesic
+from control.DistanceControl import DistanceControl
 
-from control.config import AVG_AERAL_PACE_KM_SEC, AVG_AERAL_PACE_M_SEC, BATCH_PERIOD_SEC
+from control.config import BATCH_PERIOD_SEC
 from util.debug import debug_log
-geod = Geodesic.WGS84
 
 class Bus:
     def __init__(self, id: int):
@@ -15,14 +13,9 @@ class Bus:
         self.passenger_requests: Set[PassengerRequest] = set()
         self.path: Path = Path()
         self.current_location: tuple[float, float] = None
+        self.current_passenger_count: int = 0
 
-    def get_current_passenger_count(self):
-        return sum([1 if req.pickup_time else 0 for req in self.passenger_requests])
-
-    def handle_stop_arrival(self, current_time: int):
-        if not self.path:
-            raise Exception("upcoming stops should not be empty when handle_stop_arrival is called")
-        
+    def handle_stop_arrival(self, current_time: int):        
         current_stop = self.path.pop_front()
         self.current_location = current_stop.coordinates
         debug_log(f"bus {self.id} arrived at stop {current_stop}")
@@ -30,24 +23,24 @@ class Bus:
         for req in self.passenger_requests:
             if req.start_location == current_stop and not req.pickup_time:
                 req.pickup_time = current_time
+                self.current_passenger_count += 1
                 debug_log(f"request {req.id} picked up by bus {self.id}")
             elif req.destination == current_stop and req.pickup_time:
                 req.arrival_time = current_time
+                self.current_passenger_count -= 1
                 debug_log(f"request {req.id} dropped off by bus {self.id}")
 
         self.passenger_requests = {r for r in self.passenger_requests if not r.arrival_time}
 
-    def on_time_tic(self, current_time: int):
-        if not self.path:
-            return
+    def on_time_tic(self, current_time: int, dc: DistanceControl):
+        if not self.path: return
 
         time_to_simulate = BATCH_PERIOD_SEC
         while time_to_simulate > 0:
             if not self.path: break
 
             start, dest = self.current_location, self.path.peek_front().coordinates
-            distance_to_stop = geodistance.distance(start, dest).km
-            time_to_stop = distance_to_stop / AVG_AERAL_PACE_KM_SEC
+            time_to_stop = dc.get_travel_time_seconds_coord(start, dest)
 
             if time_to_stop <= time_to_simulate:
                 self.handle_stop_arrival(current_time)
@@ -56,16 +49,7 @@ class Bus:
                 continue
             
             else:
-                # figure out where we are in path to next stop
-                #Solve the Inverse problem
-                inv = geod.Inverse(start[0],start[1],dest[0],dest[1])
-                azi1 = inv['azi1']
-
-                #Solve the Direct problem
-                distance_travelled_metres = time_to_simulate * AVG_AERAL_PACE_M_SEC
-                dir = geod.Direct(start[0],start[1],azi1, distance_travelled_metres)
-                self.current_location = (dir['lat2'],dir['lon2'])
-
+                self.current_location = dc.get_new_coord_after_time_travelled(start, dest, time_to_simulate)
                 break
 
     def add_stop_at_index(self, idx: int, stop: Stop, req: PassengerRequest):
