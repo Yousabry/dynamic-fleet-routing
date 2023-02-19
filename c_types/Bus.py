@@ -28,6 +28,7 @@ class Bus:
             elif req.destination == current_stop and req.pickup_time:
                 req.arrival_time = current_time
                 self.current_passenger_count -= 1
+                req.serving_bus_id = self.id
                 debug_log(f"request {req.id} dropped off by bus {self.id}")
 
         self.passenger_requests = {r for r in self.passenger_requests if not r.arrival_time}

@@ -39,7 +39,7 @@ def heuristic_group_close(fleet_control: FleetControl, dc: DistanceControl):
             alt_reqs = requests_for_path
             alt_reqs.add(req)
 
-            if do_stops_satisfy_requests(bus, bus.path + alt_path, alt_reqs, dc):
+            if do_stops_satisfy_requests(bus.current_location, bus.current_passenger_count, bus.path + alt_path, alt_reqs, dc):
                 requests_for_path.add(req)
                 path = alt_path
             

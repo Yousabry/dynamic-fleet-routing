@@ -6,6 +6,7 @@ from control.config import BATCH_PERIOD_SEC, NUM_SECONDS_IN_DAY
 from heuristics.Heuristics import HeuristicEnums, Heuristics
 from util.debug import debug_log
 import time
+import collections
 
 random.seed(6666)
 
@@ -21,9 +22,16 @@ def run_analytics(crowd_control: CrowdControl, fleet_control: FleetControl):
     print(f"{len(fulfilled_requests)}/{num_requests} fulfilled requests")
     avg_wait = -1 if not fulfilled_requests else total_time_waiting/len(fulfilled_requests)
     avg_travel = -1 if not fulfilled_requests else total_travel_time/len(fulfilled_requests)
-    print(f"Average wait time: {avg_wait} sec")
+    print(f"Average wait time:   {avg_wait} sec")
     print(f"Average travel time: {avg_travel} sec")
     print("-"*30)
+
+    serving_busses = []
+    for req in crowd_control.passenger_requests:
+        serving_busses.append(req.serving_bus_id)
+
+    ctr = collections.Counter(serving_busses)
+    print(ctr)
 
 def simulate_full_day(heuristic: HeuristicEnums):
     print(f"Running simulation with {heuristic} heuristic.")
@@ -65,5 +73,5 @@ def simulate_full_day(heuristic: HeuristicEnums):
 
 
 if __name__ == "__main__":
-    simulate_full_day(HeuristicEnums.ONE_BUS)
+    simulate_full_day(HeuristicEnums.GROUP_CLOSE)
     

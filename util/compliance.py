@@ -1,7 +1,6 @@
 
 
 from typing import Set
-from c_types.Bus import Bus
 from c_types.Path import Path
 from c_types.Request import PassengerRequest
 from control.DistanceControl import DistanceControl
@@ -45,7 +44,7 @@ def do_stops_satisfy_requests(bus_current_location: tuple[float, float], bus_cur
         return False
 
     capacities = [bus_current_passenger_count + capacity_change[0]]
-    for i in range(len(capacity_change)):
+    for i in range(1, len(capacity_change)):
         capacities.append(capacities[i-1] + capacity_change[i])
 
     # validate that capacity is never exceeded

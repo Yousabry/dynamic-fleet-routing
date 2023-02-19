@@ -1,6 +1,6 @@
 # Should it output debug information in console
 DEBUG_OUTPUT = False
-DEBUG_MUST_INCLUDE = "Current simulation time"
+DEBUG_MUST_INCLUDE = ""
 
 # Time between syncs for busses and fleet management control call
 BATCH_PERIOD_SEC = 30
@@ -18,7 +18,7 @@ BUS_CAPACITY = 25
 ACCEPTABLE_WAIT_FOR_PICKUP_SEC = 600 # 10 minutes
 
 # num simulated requests in the day
-NUM_REQUESTS = 100 # 300_000
+NUM_REQUESTS = 1000 # 300_000
 
 # stop ids of high volume stops
 HIGH_TRAFFIC_STOPS = ["7175","6790","7367","1249","2997","8783"]
