@@ -5,8 +5,9 @@ from control.FleetControl import FleetControl
 from control.config import BATCH_PERIOD_SEC, NUM_SECONDS_IN_DAY
 from heuristics.Heuristics import HeuristicEnums, Heuristics
 from util.debug import debug_log
+import time
 
-random.seed(666)
+random.seed(6666)
 
 def run_analytics(crowd_control: CrowdControl, fleet_control: FleetControl):
     num_requests = len(crowd_control.passenger_requests)
@@ -30,6 +31,7 @@ def simulate_full_day(heuristic: HeuristicEnums):
     distance_control = DistanceControl()
     crowd_control = CrowdControl(distance_control.all_stops)
     fleet_control = FleetControl(distance_control.all_stops)
+    time_start = time.time()
 
     # begin simulation
     current_time = 0
@@ -38,7 +40,7 @@ def simulate_full_day(heuristic: HeuristicEnums):
         current_time += BATCH_PERIOD_SEC
 
         for bus in fleet_control.busses:
-            bus.on_time_tic(current_time)
+            bus.on_time_tic(current_time, distance_control)
 
         # Handle new requests by batch
         new_requests = crowd_control.pop_new_requests(current_time)
@@ -52,14 +54,16 @@ def simulate_full_day(heuristic: HeuristicEnums):
     busses_still_working = [bus for bus in fleet_control.busses if bus.passenger_requests]
     while busses_still_working:
         for bus in busses_still_working:
-            bus.on_time_tic(current_time)
+            bus.on_time_tic(current_time, distance_control)
         
         current_time += BATCH_PERIOD_SEC
         busses_still_working = [bus for bus in busses_still_working if bus.passenger_requests]
 
+    time_end = time.time()
+    print(f"Simulation took {time_end-time_start} seconds to complete.")
     run_analytics(crowd_control, fleet_control)
 
 
 if __name__ == "__main__":
-    simulate_full_day(HeuristicEnums.FIRST_FREE)
+    simulate_full_day(HeuristicEnums.ONE_BUS)
     
