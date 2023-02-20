@@ -23,6 +23,9 @@ NUM_REQUESTS = 1000 # 300_000
 # stop ids of high volume stops
 HIGH_TRAFFIC_STOPS = ["7175","6790","7367","1249","2997","8783"]
 
+# high traffic stops are this much more likely to be part of a trip than a regular stop
+HIGH_TRAFFIC_STOPS_WEIGHT = 10
+
 # if geo distance is 10km, travel distance is = 10 * 1.4 = 14 min ~42.86km/hr avg aerial pace
 KM_TO_MINUTES_MULTIPLE = 1.4
 AVG_AERAL_PACE_KM_HR = (60 / KM_TO_MINUTES_MULTIPLE) # 42.86
