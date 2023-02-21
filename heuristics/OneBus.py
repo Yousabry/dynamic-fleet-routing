@@ -1,14 +1,13 @@
 from control.DistanceControl import DistanceControl
 from control.FleetControl import FleetControl
 from util.compliance import do_stops_satisfy_requests
-import copy
 
 # This heuristic assigns all requests to the first bus
 def heuristic_one_bus(fleet_control: FleetControl, dc: DistanceControl):
     bus = fleet_control.busses[0]
 
     for req in fleet_control.request_pool:
-        potential_path = copy.copy(bus.path)
+        potential_path = bus.path.get_copy()
         potential_path.append_stop_if_not_in_path(req.start_location)
         potential_path.append_stop_after_pred(req.destination, req.start_location)
         potential_reqs = bus.passenger_requests.copy()

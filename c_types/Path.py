@@ -46,6 +46,11 @@ class Path:
 
         return self.stops.pop(0)
 
+    def get_copy(self) -> Path:
+        copy_path = Path()
+        copy_path.stops = self.stops.copy()
+        return copy_path
+
     def append_stop(self, stop: Stop):
         if not self.stops or self.stops[-1] != stop:
             self.stops.append(stop)

@@ -1,11 +1,9 @@
 from typing import Callable, List
 from c_types.Bus import Bus
-from c_types.Stop import Stop
 from control.DistanceControl import DistanceControl
 from control.FleetControl import FleetControl
 from util.compliance import do_stops_satisfy_requests
 from util.debug import debug_log
-import copy
 
 # This heuristic makes the buses take requests in order. The bus that can arrive the earliest
 # at the start location of the new stop after servicing all current requests gets assigned this
@@ -19,7 +17,7 @@ def heuristic_first_free(fleet_control: FleetControl, distance_control: Distance
 
         # Try busses until we find one that can take it
         for bus in closest_busses:
-            potential_path = copy.copy(bus.path)
+            potential_path = bus.path.get_copy()
             potential_path.append_stop_if_not_in_path(req.start_location)
             potential_path.append_stop_after_pred(req.destination, req.start_location)
             potential_reqs = bus.passenger_requests.copy()
