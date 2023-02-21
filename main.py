@@ -8,7 +8,7 @@ from util.debug import debug_log
 import time
 import collections
 
-random.seed(6666)
+random.seed(666)
 
 def run_analytics(crowd_control: CrowdControl, fleet_control: FleetControl):
     num_requests = len(crowd_control.passenger_requests)
@@ -37,7 +37,7 @@ def simulate_full_day(heuristic: HeuristicEnums):
     print(f"Running simulation with {heuristic} heuristic.")
 
     distance_control = DistanceControl()
-    crowd_control = CrowdControl(distance_control.all_stops)
+    crowd_control = CrowdControl(distance_control)
     fleet_control = FleetControl(distance_control.all_stops)
     time_start = time.time()
 

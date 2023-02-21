@@ -17,6 +17,9 @@ BUS_CAPACITY = 25
 # max ok wait time before passenger is picked up
 ACCEPTABLE_WAIT_FOR_PICKUP_SEC = 600 # 10 minutes
 
+# max acceptable travel time from pickup as percent of direct path time
+ACCEPTABLE_TRAVEL_DELAY_PERCENT = 0.3 
+
 # num simulated requests in the day
 NUM_REQUESTS = 1000 # 300_000
 
