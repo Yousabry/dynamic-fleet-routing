@@ -58,7 +58,7 @@ def simulate_full_day(heuristic: HeuristicEnums):
         fleet_control.request_pool += new_requests
 
         # Let heuristic manage fleet and requests
-        Heuristics.heuristic_funcs[heuristic](fleet_control, distance_control)
+        Heuristics.heuristic_funcs[heuristic](fleet_control, distance_control, current_time)
 
     # run out clock to let last passengers arrive
     current_time = NUM_SECONDS_IN_DAY + 1
@@ -76,5 +76,5 @@ def simulate_full_day(heuristic: HeuristicEnums):
 
 
 if __name__ == "__main__":
-    simulate_full_day(HeuristicEnums.ONE_BUS)
+    simulate_full_day(HeuristicEnums.FIRST_FREE)
     

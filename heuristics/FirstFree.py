@@ -8,7 +8,7 @@ from util.debug import debug_log
 # This heuristic makes the buses take requests in order. The bus that can arrive the earliest
 # at the start location of the new stop after servicing all current requests gets assigned this
 # new request at the end of the queue
-def heuristic_first_free(fleet_control: FleetControl, distance_control: DistanceControl):
+def heuristic_first_free(fleet_control: FleetControl, distance_control: DistanceControl, current_time: int):
     # for each new request, we assign immediately
     for req in fleet_control.request_pool:
         distance_calc: Callable[[Bus], Bus] = lambda bus: fleet_control.time_to_arrive_for_pickup(bus, req.start_location, distance_control)
@@ -23,7 +23,7 @@ def heuristic_first_free(fleet_control: FleetControl, distance_control: Distance
             potential_reqs = bus.passenger_requests.copy()
             potential_reqs.add(req)
 
-            if do_stops_satisfy_requests(bus.current_location,bus.current_passenger_count, potential_path, potential_reqs, distance_control):
+            if do_stops_satisfy_requests(current_time, bus.current_location,bus.current_passenger_count, potential_path, potential_reqs, distance_control):
                 debug_log(f"bus {bus.id} assigned trip request {req.id}")
 
                 bus.append_if_not_already_in_upcoming(req.start_location, req)

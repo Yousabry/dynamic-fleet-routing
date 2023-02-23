@@ -8,7 +8,7 @@ from util.compliance import do_stops_satisfy_requests
 
 # This heuristic tries to find requests that are close (can be serviced by the same bus without much inconvenience)
 # It creates a path with as many of these requests as possible, then assigns the Path to a bus that can service it in time
-def heuristic_group_close(fleet_control: FleetControl, dc: DistanceControl):
+def heuristic_group_close(fleet_control: FleetControl, dc: DistanceControl, current_time: int):
     request_pool = fleet_control.request_pool.copy()
 
     while request_pool:
@@ -22,7 +22,7 @@ def heuristic_group_close(fleet_control: FleetControl, dc: DistanceControl):
         path.append_stop(first_req.destination)
 
         # if this does not work, then we cannot service this req
-        if not do_stops_satisfy_requests(bus.current_location, bus.current_passenger_count, bus.path + path, requests_for_path, dc):
+        if not do_stops_satisfy_requests(current_time, bus.current_location, bus.current_passenger_count, bus.path + path, requests_for_path, dc):
             request_pool.pop(0)
             continue
 
@@ -39,7 +39,7 @@ def heuristic_group_close(fleet_control: FleetControl, dc: DistanceControl):
             alt_reqs = requests_for_path.copy()
             alt_reqs.add(req)
 
-            if do_stops_satisfy_requests(bus.current_location, bus.current_passenger_count, bus.path + alt_path, alt_reqs, dc):
+            if do_stops_satisfy_requests(current_time, bus.current_location, bus.current_passenger_count, bus.path + alt_path, alt_reqs, dc):
                 requests_for_path.add(req)
                 path = alt_path
             

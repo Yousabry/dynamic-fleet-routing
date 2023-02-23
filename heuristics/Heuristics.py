@@ -15,7 +15,7 @@ class HeuristicEnums(Enum):
     ONE_BUS = 4
 
 class Heuristics:
-    heuristic_funcs: dict[HeuristicEnums: Callable[[FleetControl, DistanceControl], None]] = {
+    heuristic_funcs: dict[HeuristicEnums: Callable[[FleetControl, DistanceControl, int], None]] = {
         HeuristicEnums.CLOSEST_PICKUP: heuristic_closest_pickup,
         HeuristicEnums.FIRST_FREE: heuristic_first_free,
         HeuristicEnums.GROUP_CLOSE: heuristic_group_close,
