@@ -12,9 +12,8 @@ class FleetControl:
         self.request_pool: List[PassengerRequest] = []
         self.busses: List[Bus] = [Bus(i) for i in range(FLEET_SIZE)]
 
-        high_traffic_stops = [s for s in all_stops if s.high_traffic_stop]
         for bus in self.busses:
-            bus.current_location = random.choice(high_traffic_stops).coordinates
+            bus.current_location = random.choice(all_stops).coordinates
 
     def first_free_bus_to_location(self, stop: Stop, dc: DistanceControl) -> Bus:
         closest_bus = (self.busses[0], self.time_to_arrive_after_path(self.busses[0], stop, dc))
