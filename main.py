@@ -1,4 +1,5 @@
 import random
+from tqdm import tqdm
 from control.CrowdControl import CrowdControl
 from control.DistanceControl import DistanceControl
 from control.FleetControl import FleetControl
@@ -45,10 +46,8 @@ def simulate_full_day(heuristic: HeuristicEnums):
     time_start = time.time()
 
     # begin simulation
-    current_time = 0
-    while current_time <= NUM_SECONDS_IN_DAY:
+    for current_time in tqdm(range(0, NUM_SECONDS_IN_DAY+1, BATCH_PERIOD_SEC), desc="Progress", ascii=False, ncols=75):
         debug_log(f"Current simulation time: {current_time}")
-        current_time += BATCH_PERIOD_SEC
 
         for bus in fleet_control.busses:
             bus.on_time_tic(current_time, distance_control)
