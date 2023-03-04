@@ -23,9 +23,7 @@ def run_analytics(crowd_control: CrowdControl, fleet_control: FleetControl):
     print(f"{len(fulfilled_requests)}/{num_requests} fulfilled requests")
     avg_wait = -1 if not fulfilled_requests else total_time_waiting/len(fulfilled_requests)
     avg_travel = -1 if not fulfilled_requests else total_travel_time/len(fulfilled_requests)
-    # TODO: figure out how avg wait is over 600
-    # I'm guessing I confuse pickup time (like day clock) with time to pickup
-    # number of seconds until pickup somewhere
+
     print(f"Average wait time:   {avg_wait} sec")
     print(f"Average travel time: {avg_travel} sec")
     print("-"*30)

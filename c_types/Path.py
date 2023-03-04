@@ -18,6 +18,9 @@ class Path:
     
     def __contains__(self, key: Stop) -> bool:
         return key in  self.stops
+    
+    def __str__(self):
+        return " -> ".join([str(s) for s in self.stops])
 
     def __iadd__(self, other: Path) -> Path:
         for s in other.stops:

@@ -1,10 +1,10 @@
-import random
+from random import sample, randint
 from typing import List
 from c_types.Request import PassengerRequest
 
 from c_types.Stop import Stop
 from control.DistanceControl import DistanceControl
-from control.config import HIGH_TRAFFIC_STOPS_WEIGHT, NUM_REQUESTS, NUM_SECONDS_IN_DAY
+from control.config import HIGH_TRAFFIC_STOPS_WEIGHT, MIN_REQUEST_DISTANCE_KM, NUM_REQUESTS, NUM_SECONDS_IN_DAY
 
 class CrowdControl:
     def __init__(self, dc: DistanceControl) -> None:
@@ -17,8 +17,8 @@ class CrowdControl:
         stop_weights = [HIGH_TRAFFIC_STOPS_WEIGHT if s.high_traffic_stop else 1 for s in all_stops]
 
         for i in range(NUM_REQUESTS):
-            [start, dest] = random.sample(all_stops, 2, counts=stop_weights)
-            request_time = random.randint(0, NUM_SECONDS_IN_DAY)
+            [start, dest] = self.create_random_request_path(dc, stop_weights)
+            request_time = randint(0, NUM_SECONDS_IN_DAY)
 
             self.passenger_requests.append(PassengerRequest(i, start, dest, request_time, dc))
         
@@ -35,3 +35,14 @@ class CrowdControl:
                 break
         
         return new_requests
+    
+    def create_random_request_path(self, dc: DistanceControl, stop_weights: List[int]) -> List[Stop]:
+        [start, dest] = sample(dc.all_stops, 2, counts=stop_weights)
+
+        if start.stop_id == dest.stop_id:
+            return self.create_random_request_path(dc, stop_weights)
+        
+        if dc.get_travel_distance_km(start, dest) < MIN_REQUEST_DISTANCE_KM:
+            return self.create_random_request_path(dc, stop_weights)
+        
+        return [start, dest]

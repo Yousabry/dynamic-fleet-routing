@@ -6,22 +6,25 @@ DEBUG_MUST_INCLUDE = ""
 BATCH_PERIOD_SEC = 30
 
 # Number of buses in the fleet
-FLEET_SIZE = 20
+FLEET_SIZE = 900
 
 # For simulation time loop
 NUM_SECONDS_IN_DAY = 86400
 
 # Number of people that can fit on the bus
-BUS_CAPACITY = 25
+BUS_CAPACITY = 8
 
 # max ok wait time before passenger is picked up
 ACCEPTABLE_WAIT_FOR_PICKUP_SEC = 600 # 10 minutes
 
 # max acceptable travel time from pickup as percent of direct path time
-ACCEPTABLE_TRAVEL_DELAY_PERCENT = 0.3 
+ACCEPTABLE_TRAVEL_DELAY_PERCENT = 1.3
+
+# passenger requests must be >= this distance from start to dest
+MIN_REQUEST_DISTANCE_KM = 3
 
 # num simulated requests in the day
-NUM_REQUESTS = 1000 # 300_000
+NUM_REQUESTS = 300_000
 
 # stop ids of high volume stops
 HIGH_TRAFFIC_STOPS = ["7175","6790","7367","1249","2997","8783"]
