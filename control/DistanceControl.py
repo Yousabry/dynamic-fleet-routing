@@ -2,7 +2,7 @@ from typing import List
 import os
 from c_types.Stop import Stop
 from geopy import distance as geodistance
-from control.config import AVG_AERAL_PACE_M_SEC, KM_TO_MINUTES_MULTIPLE
+from control.config import AVG_AERAL_PACE_M_SEC, HIGH_TRAFFIC_ZONE_RADIUS_KM, HIGH_TRAFFIC_AREAS, KM_TO_MINUTES_MULTIPLE
 from functools import lru_cache
 from geographiclib.geodesic import Geodesic
 
@@ -42,6 +42,13 @@ class DistanceControl:
         distance_travelled_metres = time_travelled * AVG_AERAL_PACE_M_SEC
         dir = geod.Direct(start[0],start[1], azi1, distance_travelled_metres)
         return (dir['lat2'],dir['lon2'])
+    
+    def is_high_traffic_stop(self, stop_coord: tuple[float, float]) -> bool:
+        for area in HIGH_TRAFFIC_AREAS:
+            if self.get_travel_distance_coord(stop_coord, area) <= HIGH_TRAFFIC_ZONE_RADIUS_KM:
+                return True
+            
+        return False
 
     def read_stops_from_file(self) -> None:
         stops_abs_file_path = os.path.join(script_dir, f"{DATA_PATH}/stops.txt")
@@ -51,4 +58,7 @@ class DistanceControl:
 
             for stop in stops_file:
                 [stop_id,stop_code,stop_name,stop_lat,stop_lon] = stop.strip().split(",")
-                self.all_stops.append(Stop(stop_id,stop_code,stop_name,(float(stop_lat),float(stop_lon))))
+                stop_coord = (float(stop_lat),float(stop_lon))
+                high_traffic_stop = self.is_high_traffic_stop(stop_coord)
+
+                self.all_stops.append(Stop(stop_id,stop_code,stop_name,stop_coord,high_traffic_stop))
