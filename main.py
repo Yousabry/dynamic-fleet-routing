@@ -5,35 +5,11 @@ from control.DistanceControl import DistanceControl
 from control.FleetControl import FleetControl
 from control.config import BATCH_PERIOD_SEC, NUM_SECONDS_IN_DAY
 from heuristics.Heuristics import HeuristicEnums, Heuristics
+from util.analytics import run_analytics
 from util.debug import debug_log
 import time
-import collections
 
-random.seed(666)
-
-def run_analytics(crowd_control: CrowdControl, fleet_control: FleetControl):
-    num_requests = len(crowd_control.passenger_requests)
-
-    print("-"*30)
-    print(f"Simulation on {num_requests} requests with {len(fleet_control.busses)} busses in the fleet.")
-
-    fulfilled_requests = [r for r in crowd_control.passenger_requests if r.pickup_time]
-    total_time_waiting = sum([r.pickup_time - r.request_time for r in fulfilled_requests])
-    total_travel_time = sum([r.arrival_time - r.pickup_time for r in fulfilled_requests])
-    print(f"{len(fulfilled_requests)}/{num_requests} fulfilled requests")
-    avg_wait = -1 if not fulfilled_requests else total_time_waiting/len(fulfilled_requests)
-    avg_travel = -1 if not fulfilled_requests else total_travel_time/len(fulfilled_requests)
-
-    print(f"Average wait time:   {avg_wait} sec")
-    print(f"Average travel time: {avg_travel} sec")
-    print("-"*30)
-
-    serving_busses = []
-    for req in crowd_control.passenger_requests:
-        serving_busses.append(req.serving_bus_id)
-
-    ctr = collections.Counter(serving_busses)
-    print(ctr)
+random.seed(99999)
 
 def simulate_full_day(heuristic: HeuristicEnums):
     print(f"Running simulation with {heuristic} heuristic.")
@@ -73,5 +49,5 @@ def simulate_full_day(heuristic: HeuristicEnums):
 
 
 if __name__ == "__main__":
-    simulate_full_day(HeuristicEnums.FIRST_FREE)
+    simulate_full_day(HeuristicEnums.CLOSEST_PICKUP)
     
