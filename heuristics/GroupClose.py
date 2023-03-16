@@ -48,9 +48,11 @@ def heuristic_group_close(fleet_control: FleetControl, dc: DistanceControl, curr
 
         for req_added in requests_for_path:
             request_pool.remove(req_added)
+            fleet_control.request_pool.remove(req_added)
         
         # assign path (and all requests in the path) to the closest bus
         bus.path += path
         bus.passenger_requests.update(requests_for_path)
 
-    fleet_control.request_pool.clear()
+    # remove requests that have expired
+    fleet_control.request_pool = [r for r in fleet_control.request_pool if r.latest_acceptable_pickup > current_time]
