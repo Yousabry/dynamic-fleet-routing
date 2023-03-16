@@ -15,7 +15,7 @@ class FleetControl:
         for bus in self.busses:
             bus.current_location = random.choice(all_stops).coordinates
 
-    def first_free_bus_to_location(self, stop: Stop, dc: DistanceControl) -> Bus:
+    def first_free_bus_to_location(self, stop: Stop, dc: DistanceControl) -> tuple[Bus, int]:
         closest_bus = (self.busses[0], self.time_to_arrive_after_path(self.busses[0], stop, dc))
 
         for i in range(1, len(self.busses)):
@@ -23,7 +23,7 @@ class FleetControl:
             if d < closest_bus[1]:
                 closest_bus = (self.busses[i], d)
         
-        return closest_bus[0]
+        return closest_bus
 
     def time_to_arrive_for_pickup(self, bus: Bus, destination: Stop, distance_control: DistanceControl) -> int:
         if not bus.path:

@@ -12,19 +12,19 @@ def heuristic_group_close(fleet_control: FleetControl, dc: DistanceControl, curr
     request_pool = fleet_control.request_pool.copy()
 
     while request_pool:
-        path = Path()
         first_req: PassengerRequest = request_pool[0]
-        requests_for_path = set()
-        bus: Bus = fleet_control.first_free_bus_to_location(first_req.start_location, dc)
+        (bus, time_to_arrive) = fleet_control.first_free_bus_to_location(first_req.start_location, dc)
+        arrival_time = current_time + time_to_arrive
 
+        # if this does not work, then we cannot service this req
+        if arrival_time > first_req.latest_acceptable_pickup:
+            request_pool.pop(0)
+            continue
+
+        path, requests_for_path = Path(), set()
         requests_for_path.add(first_req)
         path.append_stop(first_req.start_location)
         path.append_stop(first_req.destination)
-
-        # if this does not work, then we cannot service this req
-        if not do_stops_satisfy_requests(current_time, bus.current_location, bus.current_passenger_count, bus.path + path, requests_for_path, dc):
-            request_pool.pop(0)
-            continue
 
         # sort requests in pool by distance from first_req
         distance_calc: Callable[[PassengerRequest], Bus] = lambda req: dc.get_travel_distance_km(first_req.start_location, req.start_location)
