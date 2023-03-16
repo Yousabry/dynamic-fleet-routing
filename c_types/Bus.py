@@ -1,4 +1,4 @@
-from typing import Set
+from typing import List, Set
 from c_types.Path import Path
 from c_types.Request import PassengerRequest
 from c_types.Stop import Stop
@@ -63,6 +63,11 @@ class Bus:
         self.path.append_stop(stop)
         self.passenger_requests.add(req)
 
+    def append_request_to_path(self, req: PassengerRequest):
+        self.path.append_stop_if_not_in_path(req.start_location)
+        self.path.append_stop_after_pred(req.destination, req.start_location)
+        self.passenger_requests.add(req)
+
     def append_if_not_already_in_upcoming(self, stop: Stop, req: PassengerRequest):
         self.path.append_stop_if_not_in_path(stop)
         self.passenger_requests.add(req)
@@ -71,3 +76,6 @@ class Bus:
     def append_after_stop(self, stop: Stop, req: PassengerRequest, needed_pred: Stop):
         self.path.append_stop_after_pred(stop, needed_pred)
         self.passenger_requests.add(req)
+
+    def get_arrival_times(self, dc: DistanceControl) -> List[int]:
+        return self.path.get_arrival_times(self.current_location, dc)
