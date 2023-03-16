@@ -14,10 +14,12 @@ class Bus:
         self.path: Path = Path()
         self.current_location: tuple[float, float] = None
         self.current_passenger_count: int = 0
+        self.stops_visited: list[Stop] = []
 
     def handle_stop_arrival(self, current_time: int):        
         current_stop = self.path.pop_front()
         self.current_location = current_stop.coordinates
+        self.stops_visited.append(current_stop)
         debug_log(f"bus {self.id} arrived at stop {current_stop}")
 
         for req in self.passenger_requests:
