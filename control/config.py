@@ -1,6 +1,6 @@
 # Should it output debug information in console
 DEBUG_OUTPUT = True
-DEBUG_MUST_INCLUDE = "looks like it is getting stuck"
+DEBUG_MUST_INCLUDE = "requests to check in CP"
 
 # Time between syncs for busses and fleet management control call
 BATCH_PERIOD_SEC = 30
@@ -14,14 +14,17 @@ NUM_SECONDS_IN_DAY = 86400
 # Number of people that can fit on the bus
 BUS_CAPACITY = 28
 
+# Time to give heuristics to manage fleet before cutoff
+HEURISTIC_TIME_CUTOFF_SEC = 20
+
 # max ok wait time before passenger is picked up
 ACCEPTABLE_WAIT_FOR_PICKUP_SEC = 900 # 15 minutes
 
 # max acceptable travel time from pickup as percent of direct path time
-ACCEPTABLE_TRAVEL_DELAY_PERCENT = 1.5
+ACCEPTABLE_TRAVEL_DELAY_PERCENT = 1.3
 
 # passenger requests must be >= this distance from start to dest
-MIN_REQUEST_DISTANCE_KM = 3
+MIN_REQUEST_DISTANCE_KM = 2
 
 # num simulated requests in the day
 NUM_REQUESTS = 150_000

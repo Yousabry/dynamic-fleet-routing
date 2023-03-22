@@ -3,10 +3,11 @@ from tqdm import tqdm
 from control.CrowdControl import CrowdControl
 from control.DistanceControl import DistanceControl
 from control.FleetControl import FleetControl
-from control.config import BATCH_PERIOD_SEC, NUM_SECONDS_IN_DAY
+from control.config import BATCH_PERIOD_SEC, HEURISTIC_TIME_CUTOFF_SEC, NUM_SECONDS_IN_DAY
 from heuristics.Heuristics import HeuristicEnums, Heuristics
 from util.analytics import run_analytics
 from util.debug import debug_log
+from util.timeout import TimeoutException, time_limit
 import time
 
 random.seed(99999)
@@ -17,6 +18,7 @@ def simulate_full_day(heuristic: HeuristicEnums):
     distance_control = DistanceControl()
     crowd_control = CrowdControl(distance_control)
     fleet_control = FleetControl(distance_control.all_stops)
+    timeout_count = 0
     time_start = time.time()
 
     # begin simulation
@@ -31,7 +33,12 @@ def simulate_full_day(heuristic: HeuristicEnums):
         fleet_control.request_pool += new_requests
 
         # Let heuristic manage fleet and requests
-        Heuristics.heuristic_funcs[heuristic](fleet_control, distance_control, current_time)
+        try:
+            with time_limit(HEURISTIC_TIME_CUTOFF_SEC):
+                Heuristics.heuristic_funcs[heuristic](fleet_control, distance_control, current_time)
+        except TimeoutException as e:
+            debug_log("Timed out!")
+            timeout_count += 1
 
     # run out clock to let last passengers arrive
     current_time = NUM_SECONDS_IN_DAY + 1
@@ -44,7 +51,7 @@ def simulate_full_day(heuristic: HeuristicEnums):
         busses_still_working = [bus for bus in busses_still_working if bus.passenger_requests]
 
     time_end = time.time()
-    print(f"Simulation took {time_end-time_start} seconds to complete.")
+    print(f"Simulation took {time_end-time_start} seconds to complete. Heuristic timed out {timeout_count} times.")
     run_analytics(crowd_control, fleet_control)
 
 
