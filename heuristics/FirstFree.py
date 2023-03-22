@@ -10,7 +10,7 @@ from util.debug import debug_log
 # new request at the end of the queue
 def heuristic_first_free(fleet_control: FleetControl, distance_control: DistanceControl, current_time: int):
     # for each new request, we assign immediately
-    for req in fleet_control.request_pool:
+    for req in reversed(fleet_control.request_pool):
         distance_calc: Callable[[Bus], Bus] = lambda bus: fleet_control.time_to_arrive_for_pickup(bus, req.start_location, distance_control)
         closest_busses: List[Bus] = fleet_control.busses.copy()
         closest_busses.sort(key=distance_calc)
@@ -22,6 +22,7 @@ def heuristic_first_free(fleet_control: FleetControl, distance_control: Distance
 
             if does_bus_satisfy_requests(current_time, bus, distance_control):
                 debug_log(f"bus {bus.id} assigned trip request {req.id}")
+                fleet_control.request_pool.pop()
                 break
 
             else:
@@ -29,5 +30,3 @@ def heuristic_first_free(fleet_control: FleetControl, distance_control: Distance
 
                 bus.path = old_path
                 bus.passenger_requests.remove(req)
-
-    fleet_control.request_pool.clear()

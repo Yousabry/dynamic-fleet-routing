@@ -9,6 +9,8 @@ from util.compliance import do_stops_satisfy_requests
 # This heuristic tries to find requests that are close (can be serviced by the same bus without much inconvenience)
 # It creates a path with as many of these requests as possible, then assigns the Path to a bus that can service it in time
 def heuristic_group_close(fleet_control: FleetControl, dc: DistanceControl, current_time: int):
+    # remove requests that have expired
+    fleet_control.request_pool = [r for r in fleet_control.request_pool if r.latest_acceptable_pickup > current_time]
     request_pool = fleet_control.request_pool.copy()
 
     while request_pool:
@@ -53,6 +55,3 @@ def heuristic_group_close(fleet_control: FleetControl, dc: DistanceControl, curr
         # assign path (and all requests in the path) to the closest bus
         bus.path += path
         bus.passenger_requests.update(requests_for_path)
-
-    # remove requests that have expired
-    fleet_control.request_pool = [r for r in fleet_control.request_pool if r.latest_acceptable_pickup > current_time]
