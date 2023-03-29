@@ -68,6 +68,11 @@ class Bus:
         self.path.append_stop_after_pred(req.destination, req.start_location)
         self.passenger_requests.add(req)
 
+    def add_request_custom_cp(self, req: PassengerRequest):
+        self.path.add_stop_at_index(0, req.start_location)
+        self.path.append_stop_after_pred(req.destination, req.start_location)
+        self.passenger_requests.add(req)
+
     def append_if_not_already_in_upcoming(self, stop: Stop, req: PassengerRequest):
         self.path.append_stop_if_not_in_path(stop)
         self.passenger_requests.add(req)
